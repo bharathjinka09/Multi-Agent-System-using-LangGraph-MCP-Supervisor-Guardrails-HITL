@@ -23,6 +23,9 @@ Features
 Architecture
 ![System architecture](architecture.png)
 
+Demo
+![TripMate AI demo](demo.png)
+
 Prerequisites
 - Python 3.10+ (recommended)
 - Git (to clone the repo)
