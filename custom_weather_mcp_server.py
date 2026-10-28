@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 from pathlib import Path
@@ -147,13 +148,41 @@ def get_forecast(
 
 
 if __name__ == "__main__":
-    # mcp_client.py launches this as a stdio subprocess.
-    print(
-        "Weather MCP Server is running on stdio. Waiting for MCP client requests. "
-        "Do not type here; press Ctrl+C to stop.",
-        file=sys.stderr,
-        flush=True,
+    parser = argparse.ArgumentParser(description="Weather MCP Server")
+    parser.add_argument(
+        "--transport", choices=("stdio", "streamable-http"), default="stdio"
     )
-    mcp.run(
-        transport="stdio",
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=os.getenv("PORT", "8000"))
+    parser.add_argument(
+        "--allowed-host",
+        action="append",
+        default=[],
+        help="Additional HTTP Host header to allow, e.g. weather.example.com:*",
     )
+    args = parser.parse_args()
+    if not 1 <= args.port <= 65535:
+        parser.error("--port must be between 1 and 65535")
+
+    if args.transport == "streamable-http":
+        mcp.settings.host = args.host
+        mcp.settings.port = args.port
+        mcp.settings.stateless_http = True
+        mcp.settings.json_response = True
+        mcp.settings.transport_security.allowed_hosts.extend(args.allowed_host)
+        print(
+            f"Starting Weather MCP Server on {args.host}:{args.port}/mcp "
+            "(Streamable HTTP). Authentication is not configured; "
+            "protect the endpoint before exposing it publicly.",
+            file=sys.stderr,
+            flush=True,
+        )
+    else:
+        print(
+            "Weather MCP Server is running on stdio. Waiting for MCP client requests. "
+            "Do not type here; press Ctrl+C to stop.",
+            file=sys.stderr,
+            flush=True,
+        )
+
+    mcp.run(transport=args.transport)
