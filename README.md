@@ -1,6 +1,6 @@
 # Multi-Agent-System-using-LangGraph-MCP-Supervisor-Guardrails-HITL
 
-A multi-agent system that uses LangGraph and MCP to implement a travel-planning assistant with a Supervisor, input Guardrails, and Human-In-The-Loop (HITL) approval flows. The project includes a FastAPI frontend, example MCP server, and client helpers to demonstrate how agents, supervisors, and guardrails can be composed into a safe, reviewable planning pipeline.
+A demo multi-agent system that uses LangGraph and MCP to implement a travel-planning assistant with a Supervisor, input Guardrails, and Human-In-The-Loop (HITL) approval flows. The project includes a FastAPI frontend, example MCP server, and client helpers to demonstrate how agents, supervisors, and guardrails can be composed into a safe, reviewable planning pipeline.
 
 Key ideas:
 - Multi-agent coordination using LangGraph and MCP
@@ -58,7 +58,7 @@ uvicorn app:app --reload --host 127.0.0.1 --port 8000
 Visit http://127.0.0.1:8000 in your browser to use the TripMate frontend.
 
 Running the MCP server (example)
-- The repository includes `custom_weather_mcp_server.py` as an example MCP server. Run it in a separate terminal if you want to experiment with custom adapters.
+- The repository includes `custom_weather_mcp_server.py` as an example MCP server. Run it in a separate terminal if you want to experiment with custom adapters used by the demo.
 
 ```powershell
 # start example MCP server (if needed)
@@ -74,7 +74,7 @@ Configuration & environment
 - Secrets and API keys are not included in the repo. Use environment variables or a `.env` file for any required keys consumed by `langgraph`, `langchain`, or other adapters.
 
 Development notes
-- The project keeps synchronous convenience wrappers in `backend.py` while running an async FastAPI server — `nest_asyncio` is applied in `app.py` to allow the sync helpers to call async MCP helpers.
+- The async FastAPI endpoints run the synchronous agent helpers in a worker thread, allowing their MCP calls to use `asyncio.run()` without nesting event loops or patching asyncio.
 - Tests are not included; to experiment, interact with the web UI or call the API endpoints directly.
 
 Contributing
