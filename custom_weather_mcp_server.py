@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -147,6 +148,12 @@ def get_forecast(
 
 if __name__ == "__main__":
     # mcp_client.py launches this as a stdio subprocess.
+    print(
+        "Weather MCP Server is running on stdio. Waiting for MCP client requests. "
+        "Do not type here; press Ctrl+C to stop.",
+        file=sys.stderr,
+        flush=True,
+    )
     mcp.run(
         transport="stdio",
     )

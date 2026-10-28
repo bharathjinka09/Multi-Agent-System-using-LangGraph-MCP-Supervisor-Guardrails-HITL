@@ -60,13 +60,61 @@ uvicorn app:app --reload --host 127.0.0.1 --port 8000
 
 Visit http://127.0.0.1:8000 in your browser to use the TripMate frontend.
 
-Running the MCP server (example)
-- The repository includes `custom_weather_mcp_server.py` as an example MCP server. Run it in a separate terminal if you want to experiment with custom adapters used by the demo.
+## Weather MCP Server
+
+The weather server uses MCP over stdio, not HTTP. It has no public URL or listening port. The app's MCP client launches it automatically as a subprocess when a weather tool is needed; no separate server terminal is required.
+
+### Who Can Access It
+
+- The app's MCP client communicates with its server subprocess through stdin/stdout.
+- Other local programs or users with permission to execute the script can launch their own server process.
+- Remote users cannot connect directly. Web app users can access the weather tools indirectly through the app's weather agent, subject to the web app's own access controls.
+
+### Connect Another MCP Client
+
+1. Install the project dependencies in a virtual environment as described in Quick start.
+2. Create a `.env` file in the project root and set `OPENWEATHER_API_KEY` to your OpenWeather API key.
+3. Add the following server entry to your MCP client's configuration, replacing `C:/path/to/project` with the absolute path to this project. The configuration location and format depend on the client; this example is for clients supporting `mcpServers`.
+
+```json
+{
+	"mcpServers": {
+		"weather": {
+			"command": "C:/path/to/project/.venv/Scripts/python.exe",
+			"args": [
+				"C:/path/to/project/custom_weather_mcp_server.py"
+			]
+		}
+	}
+}
+```
+
+4. Enable or reload the server in your MCP client. The client starts its own server process and discovers these tools:
+
+- `get_current_weather(city)`: current weather for a city.
+- `get_forecast(city)`: the first five three-hour forecast entries for a city.
+
+The server loads `.env` from the project directory regardless of the client's working directory. `OPENWEATHER_API_KEY` authenticates requests to OpenWeather; it does not authenticate MCP clients. Do not share or commit your actual key. Remote access would require an HTTP transport, authentication, and HTTPS; these are not configured in this project.
+
+### Use With Claude Desktop
+
+1. Install the project dependencies and set `OPENWEATHER_API_KEY` in the project's `.env` file as described above.
+2. Open Claude Desktop and go to Settings > Developer > Edit Config. On Windows, the configuration file is typically `%APPDATA%/Claude/claude_desktop_config.json`.
+3. Merge the `weather` entry from the JSON example above into your configuration's `mcpServers` object. Replace `C:/path/to/project` with this project's absolute path, and preserve any existing server entries. Use forward slashes in the JSON paths as shown.
+4. Fully quit and reopen Claude Desktop so it loads the new configuration.
+5. In a new conversation, ask: "Use the weather tool to check the weather in London." Allow the tool call if Claude requests permission.
+
+Claude Desktop launches the weather server automatically. Do not start the weather script or the FastAPI app separately for this connection. The integration exposes only `get_current_weather` and `get_forecast`, not the complete travel-planning workflow. Claude's web interface cannot directly launch this local stdio server.
+
+### Manual Startup
+
+To check standalone startup:
 
 ```powershell
-# start example MCP server (if needed)
 python custom_weather_mcp_server.py
 ```
+
+The startup message appears on stderr, keeping stdout reserved for JSON-RPC messages. The process waits for MCP input, not interactive commands. Do not type or press Enter in that terminal: blank lines are not valid JSON-RPC and cause parsing errors. Press Ctrl+C to stop. A separately started process is not used by the web app or another stdio client.
 
 API Endpoints
 - `POST /api/travel` — create or resume a travel planning thread. JSON: `{ "message": "<user prompt>", "thread_id": "optional-thread-id" }`
