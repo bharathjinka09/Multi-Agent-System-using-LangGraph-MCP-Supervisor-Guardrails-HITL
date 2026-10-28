@@ -20,6 +20,9 @@ Features
 - Endpoint for drafting travel plans and separate approval endpoint
 - Example MCP server demonstrating domain adapters (weather, checkpoints)
 
+Architecture
+![System architecture](architecture.png)
+
 Prerequisites
 - Python 3.10+ (recommended)
 - Git (to clone the repo)
