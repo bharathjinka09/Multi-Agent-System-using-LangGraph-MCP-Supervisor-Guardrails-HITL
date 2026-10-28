@@ -98,7 +98,7 @@ The server loads `.env` from the project directory regardless of the client's wo
 
 ### Use With Claude Desktop
 
-1. Install the project dependencies and set `OPENWEATHER_API_KEY` in the project's `.env` file as described above.
+1. Install the project dependencies and set `OPENWEATHER_API_KEY` in the project's `.env` file as described above. Run custom_weather_mcp_server.py to start the weather MCP server.
 2. Open Claude Desktop and go to Settings > Developer > Edit Config. On Windows, the configuration file is typically `%APPDATA%/Claude/claude_desktop_config.json`.
 3. Merge the `weather` entry from the JSON example above into your configuration's `mcpServers` object. Replace `C:/path/to/project` with this project's absolute path, and preserve any existing server entries. Use forward slashes in the JSON paths as shown.
 4. Fully quit and reopen Claude Desktop so it loads the new configuration.
